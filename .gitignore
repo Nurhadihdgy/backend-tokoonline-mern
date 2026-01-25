@@ -34,8 +34,7 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
-# Uploaded files
-uploads/
+
 # Coverage
 tokoonline.products.json
 tokoonline.users.json
