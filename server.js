@@ -22,5 +22,5 @@ app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 
 app.listen(process.env.PORT, () => {
-  console.log(`Server running on http://localhost:${process.env.PORT}`);
+  console.log(`Server running`);
 });
