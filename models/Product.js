@@ -21,9 +21,8 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    imagePath: {
-      type: String,
-    },
+    imageUrl: String,
+    imagePublicId: String,
     isActive: {
       type: Boolean,
       default: true,

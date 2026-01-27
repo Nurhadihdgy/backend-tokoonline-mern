@@ -1,5 +1,5 @@
 const Product = require("../models/Product");
-const { encryptAndSave } = require("../utils/encryptedFile");
+const cloudinary = require("../utils/cloudinary");
 const fs = require("fs");
 const path = require("path");
 
@@ -29,25 +29,40 @@ exports.getProductById = async (req, res) => {
 // CREATE product
 exports.createProduct = async (req, res) => {
   try {
-    let imagePath = null;
+    let imageUrl = null;
+    let imagePublicId = null;
 
     if (req.file) {
-      const filename = Date.now() + "-" + req.file.originalname;
-      imagePath = encryptAndSave(req.file.buffer, filename);
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "tokoonline/products",
+        resource_type: "image",
+        transformation: [
+          { width: 800, height: 800, crop: "limit" },
+          { quality: "auto", fetch_format: "auto" }
+        ]
+      });
+
+      imageUrl = result.secure_url;
+      imagePublicId = result.public_id;
     }
 
-    const product = new Product({
+    const product = await Product.create({
       ...req.body,
-      imagePath
+      imageUrl,
+      imagePublicId
     });
 
-    await product.save();
-    res.status(201).json({ product, message: "Product berhasil dibuat", status: "success" });
+    res.status(201).json({
+      product,
+      message: "Product berhasil dibuat",
+      status: "success"
+    });
 
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 // UPDATE product
 exports.updateProduct = async (req, res) => {
@@ -59,13 +74,22 @@ exports.updateProduct = async (req, res) => {
 
     // jika upload gambar baru
     if (req.file) {
-      // hapus file lama (jika ada)
-      if (product.imagePath && fs.existsSync(product.imagePath)) {
-        fs.unlinkSync(product.imagePath);
+      // hapus gambar lama di Cloudinary
+      if (product.imagePublicId) {
+        await cloudinary.uploader.destroy(product.imagePublicId);
       }
 
-      const filename = Date.now() + "-" + req.file.originalname;
-      product.imagePath = encryptAndSave(req.file.buffer, filename);
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "tokoonline/products",
+        resource_type: "image",
+        transformation: [
+          { width: 800, height: 800, crop: "limit" },
+          { quality: "auto", fetch_format: "auto" }
+        ]
+      });
+
+      product.imageUrl = result.secure_url;
+      product.imagePublicId = result.public_id;
     }
 
     // update field lain
@@ -83,6 +107,7 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
+
 // DELETE product
 exports.deleteProduct = async (req, res) => {
   try {
@@ -91,9 +116,8 @@ exports.deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product tidak ditemukan" });
     }
 
-    // hapus file terenkripsi
-    if (product.imagePath && fs.existsSync(product.imagePath)) {
-      fs.unlinkSync(product.imagePath);
+    if (product.imagePublicId) {
+      await cloudinary.uploader.destroy(product.imagePublicId);
     }
 
     await product.deleteOne();
