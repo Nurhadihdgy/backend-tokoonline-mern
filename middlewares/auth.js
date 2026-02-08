@@ -25,7 +25,15 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
+const userOnly = (req, res, next) => {
+  if (req.user.role !== "user") {
+    return res.status(403).json({ message: "Akses khusus user saja" });
+  }
+  next();
+};
+
 module.exports = {
   auth,
   adminOnly,
+  userOnly,
 };
