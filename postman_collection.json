@@ -112,7 +112,7 @@
 							"host": ["{{base_url}}"],
 							"path": ["products"]
 						},
-						"description": "Ambil semua produk. Butuh auth."
+						"description": "Ambil semua produk. Public, tidak perlu login."
 					}
 				},
 				{
@@ -125,7 +125,7 @@
 							"host": ["{{base_url}}"],
 							"path": ["products", "{{product_id}}"]
 						},
-						"description": "Ambil detail produk berdasarkan ID."
+						"description": "Ambil detail produk berdasarkan ID. Public, tidak perlu login."
 					}
 				},
 				{
@@ -205,7 +205,7 @@
 					}
 				}
 			],
-			"description": "CRUD Produk. GET untuk semua user, POST/PUT/DELETE hanya admin."
+			"description": "CRUD Produk. GET public (tanpa login), POST/PUT/DELETE hanya admin."
 		},
 		{
 			"name": "Cart (User Only)",

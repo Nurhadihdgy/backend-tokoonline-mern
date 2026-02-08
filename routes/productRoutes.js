@@ -5,9 +5,9 @@ const controller = require("../controllers/productController");
 const upload = require("../middlewares/upload");
 const { auth, adminOnly } = require("../middlewares/auth");
 
-// Public routes
-router.get("/", auth, controller.getAllProducts);
-router.get("/:id", auth, controller.getProductById);
+// Public routes (tanpa auth, bisa diakses tanpa login)
+router.get("/", controller.getAllProducts);
+router.get("/:id", controller.getProductById);
 
 
 // Admin only routes
