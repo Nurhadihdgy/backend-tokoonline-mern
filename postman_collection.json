@@ -377,6 +377,60 @@
 				}
 			],
 			"description": "Order & Checkout. Hanya role 'user'. Flow: Cart → Checkout → (QRIS: Check Payment) → Selesai."
+		},
+		{
+			"name": "Admin - Riwayat Transaksi",
+			"item": [
+				{
+					"name": "Get All Orders (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "orders"]
+						},
+						"description": "Ambil semua order dari semua user. Hanya admin. Data user di-populate (name, email)."
+					}
+				},
+				{
+					"name": "Get Order by ID (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders/{{order_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "orders", "{{order_id}}"]
+						},
+						"description": "Ambil detail order berdasarkan ID. Hanya admin. Data user di-populate."
+					}
+				},
+				{
+					"name": "Update Order Status (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderStatus\": \"processing\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/orders/{{order_id}}/status",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "orders", "{{order_id}}", "status"]
+						},
+						"description": "Update status order. Hanya admin. Status valid: waiting_payment, forwarded_to_seller, processing, completed."
+					}
+				}
+			],
+			"description": "Riwayat transaksi untuk admin. Bisa lihat semua order dan update status. Login sebagai admin terlebih dahulu."
 		}
 	]
 }

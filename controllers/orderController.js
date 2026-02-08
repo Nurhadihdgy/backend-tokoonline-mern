@@ -127,3 +127,79 @@ exports.getOrders = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// ===================== ADMIN =====================
+
+// GET /api/admin/orders - semua order (admin)
+exports.getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      orders,
+      message: "Semua order ditemukan",
+      status: "success",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// GET /api/admin/orders/:id - detail order (admin)
+exports.getOrderByIdAdmin = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate(
+      "user",
+      "name email"
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order tidak ditemukan" });
+    }
+
+    res.json({
+      order,
+      message: "Order ditemukan",
+      status: "success",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PUT /api/admin/orders/:id/status - update status order (admin)
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { orderStatus } = req.body;
+
+    const validStatuses = [
+      "waiting_payment",
+      "forwarded_to_seller",
+      "processing",
+      "completed",
+    ];
+
+    if (!validStatuses.includes(orderStatus)) {
+      return res.status(400).json({ message: "Status tidak valid" });
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order tidak ditemukan" });
+    }
+
+    order.orderStatus = orderStatus;
+    await order.save();
+
+    res.json({
+      order,
+      message: "Status order diperbarui",
+      status: "success",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
