@@ -32,23 +32,23 @@ const seedData = async () => {
     const hashedAdminPassword = await bcrypt.hash('admin123', 10);
     const admin = new User({
       name: 'Administrator',
-      email: 'admin@example.com',
+      email: 'admin@gmail.com',
       password: hashedAdminPassword,
       role: 'admin'
     });
     await admin.save();
-    console.log('Created admin user: admin@example.com / admin123');
+    console.log('Created admin user: admin@gmail.com / admin123');
 
     // Create regular user
     const hashedUserPassword = await bcrypt.hash('user123', 10);
     const user = new User({
       name: 'Test User',
-      email: 'user@example.com',
+      email: 'user@gmail.com',
       password: hashedUserPassword,
       role: 'user'
     });
     await user.save();
-    console.log('Created regular user: user@example.com / user123');
+    console.log('Created regular user: user@gmail.com / user123');
 
     // Create sample products
     const products = [
@@ -239,8 +239,8 @@ const seedData = async () => {
 
     console.log('\n✅ Seed data successfully created!');
     console.log('\n📋 Login Credentials:');
-    console.log('Admin: admin@example.com / admin123');
-    console.log('User: user@example.com / user123');
+    console.log('Admin: admin@gmail.com / admin123');
+    console.log('User: user@gmail.com / user123');
 
     // Disconnect from MongoDB
     await mongoose.disconnect();
