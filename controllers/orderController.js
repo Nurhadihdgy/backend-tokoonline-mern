@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 
 // POST /api/orders/checkout - buat order dari cart
 exports.checkout = async (req, res) => {
@@ -12,11 +13,34 @@ exports.checkout = async (req, res) => {
 
     const cart = await Cart.findOne({ user: req.user.id }).populate(
       "items.product",
-      "name price"
+      "name price stock"
     );
 
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "Keranjang kosong" });
+    }
+
+    // Validasi stok sebelum checkout
+    const outOfStockItems = [];
+    for (const item of cart.items) {
+      const product = await Product.findById(item.product._id);
+      if (!product || product.stock < item.quantity) {
+        outOfStockItems.push({
+          name: item.product.name,
+          requested: item.quantity,
+          available: product ? product.stock : 0,
+        });
+      }
+    }
+
+    if (outOfStockItems.length > 0) {
+      const details = outOfStockItems
+        .map((i) => `${i.name} (diminta: ${i.requested}, stok: ${i.available})`)
+        .join(", ");
+      return res.status(400).json({
+        message: `Stok tidak cukup untuk: ${details}`,
+        outOfStockItems,
+      });
     }
 
     const items = cart.items.map((item) => ({
@@ -39,6 +63,13 @@ exports.checkout = async (req, res) => {
       paymentStatus: paymentMethod === "cash" ? "paid" : "pending",
       orderStatus: paymentMethod === "cash" ? "forwarded_to_seller" : "waiting_payment",
     });
+
+    // Kurangi stok produk setelah order berhasil dibuat
+    for (const item of cart.items) {
+      await Product.findByIdAndUpdate(item.product._id, {
+        $inc: { stock: -item.quantity },
+      });
+    }
 
     // kosongkan cart setelah checkout
     cart.items = [];
